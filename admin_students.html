@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Students</title>
+<style>
+body{ font-family:'Times New Roman', Times, serif; background:#f4faff; margin:0; padding:0; }
+.container{ max-width:900px; margin:20px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.1);}
+h2{text-align:center; color:#0a1f44;}
+table{ width:100%; border-collapse:collapse; margin-top:20px;}
+th, td{ padding:10px; border:1px solid #ccc; text-align:left;}
+th{ background:#1a73e8; color:#fff;}
+input, select{ padding:6px; margin:5px 0; width:100%;}
+button{ padding:8px 12px; margin:5px; background:#1a73e8; color:#fff; border:none; border-radius:5px; cursor:pointer;}
+button:hover{ background:#155ab6;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Manage Students</h2>
+
+<h3>Add Student</h3>
+<form id="addStudentForm">
+  <input type="text" id="studentName" placeholder="Full Name" required>
+  <input type="text" id="studentUsername" placeholder="Username" required>
+  <button type="submit">Add Student</button>
+</form>
+
+<h3>Students List</h3>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Name</th><th>Username</th><th>Actions</th></tr>
+  </thead>
+  <tbody id="studentsTable"></tbody>
+</table>
+
+<button onclick="goBack()">Back to Dashboard</button>
+</div>
+
+<script src="js/storage.js"></script>
+<script>
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+if(!currentUser || currentUser.role!=='admin'){ alert('Access denied'); window.location.href='index.html'; }
+
+function renderStudents(){
+  const students = Storage.getUsers().filter(u=>u.role==='student');
+  const tbody = document.getElementById('studentsTable');
+  tbody.innerHTML='';
+  students.forEach(s=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s.id}</td><td>${s.name}</td><td>${s.username}</td>
+      <td><button onclick="deleteStudent('${s.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteStudent(id){
+  let users = Storage.getUsers();
+  users = users.filter(u=>u.id!==id);
+  localStorage.setItem('uni_users_v1', JSON.stringify(users));
+  renderStudents();
+}
+
+document.getElementById('addStudentForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('studentName').value.trim();
+  const username = document.getElementById('studentUsername').value.trim();
+  if(!name || !username){ alert('All fields required'); return; }
+  const users = Storage.getUsers();
+  const newId = 's'+(users.length+1);
+  users.push({id:newId, name, username, role:'student'});
+  localStorage.setItem('uni_users_v1', JSON.stringify(users));
+  renderStudents();
+  document.getElementById('addStudentForm').reset();
+});
+
+function goBack(){ window.location.href='admin_dashboard.html'; }
+
+renderStudents();
+</script>
+</body>
+</html>
