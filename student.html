@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Student — Dashboard</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+  <div class="bg-decor" aria-hidden="true"><div class="shape a"></div><div class="shape b"></div></div>
+  <nav class="topnav fade-in"><div class="brand">Student Dashboard</div><div class="nav-actions"><div id="userInfo" class="muted"></div><button class="btn" id="logout">Logout</button></div></nav>
+  <main class="container">
+    <section class="card fade-in"><div class="header"><div><div class="title">Profile</div><div class="lead">Your information</div></div></div><div id="profile" style="margin-top:12px"></div></section>
+    <section class="card fade-in"><div class="header"><div><div class="title">Attendance</div><div class="lead">Attendance percentage & history</div></div></div><div id="attendanceInfo" style="margin-top:12px"></div></section>
+    <section class="card fade-in"><div class="header"><div><div class="title">Results</div><div class="lead">Your marks and grade</div></div></div><div id="results" style="margin-top:12px"></div></section>
+  
+    <section class="card fade-in">
+      <div class="header"><div><div class="title">Course Registration</div><div class="lead">Enroll in courses offered</div></div></div>
+      <div class="form-row">
+        <label>Available Courses <select id="availableCourses" size="6"></select></label>
+        <label>Enrolled Courses<div id="enrolledCourses" style="margin-top:6px"></div></label>
+      </div>
+      <div class="actions"><button class="btn primary" id="enrollBtn">Enroll</button><button class="btn" id="dropBtn">Drop Selected</button></div>
+    </section>
+
+  </main>
+  <script src="js/storage.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
