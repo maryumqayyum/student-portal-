@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mark Attendance</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <h2>Mark Attendance</h2>
+  <form id="attForm">
+    <select id="attCourse" required></select>
+    <select id="attStudent" required></select>
+    <select id="attStatus" required>
+      <option value="present">Present</option>
+      <option value="absent">Absent</option>
+    </select>
+    <button type="submit">Save Attendance</button>
+  </form>
+
+  <h3>All Attendance</h3>
+  <div id="attTable"></div>
+
+  <button onclick="location.href='teacher_dashboard.html'">Back to Dashboard</button>
+</div>
+
+<script src="js/storage.js"></script>
+<script>
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+if(!currentUser || currentUser.role !== 'teacher'){
+    alert('Access denied');
+    location.href='index.html';
+}
+
+// populate courses and students
+function populateSelects(){
+  const courses = Storage.getCoursesByTeacher(currentUser.id);
+  const students = Storage.getUsers().filter(u => u.role==='student');
+
+  const courseSel = document.getElementById('attCourse');
+  const studentSel = document.getElementById('attStudent');
+  courseSel.innerHTML = '';
+  studentSel.innerHTML = '';
+
+  courses.forEach(c => courseSel.innerHTML += `<option value="${c.id}">${c.code} - ${c.title}</option>`);
+  students.forEach(s => studentSel.innerHTML += `<option value="${s.id}">${s.name}</option>`);
+}
+
+// render table
+function renderAttendance(){
+  const att = Storage.getAttendance().filter(a => {
+    const c = Storage.getCourse(a.courseId);
+    return c && c.teacherId === currentUser.id;
+  });
+  const table = document.getElementById('attTable');
+  if(!att.length){ table.innerHTML = '<div>No attendance yet</div>'; return; }
+
+  table.innerHTML = att.map(a => {
+    const student = Storage.getUserById(a.studentId);
+    const course = Storage.getCourse(a.courseId);
+    return `<div>${a.date} — ${student.name} — ${course.code}: ${a.present ? 'Present' : 'Absent'}</div>`;
+  }).join('');
+}
+
+// handle form submit
+document.getElementById('attForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const studentId = document.getElementById('attStudent').value;
+  const courseId = document.getElementById('attCourse').value;
+  const status = document.getElementById('attStatus').value;
+  const date = new Date().toLocaleDateString();
+
+  // convert status to boolean
+  const present = status === 'present';
+
+  let att = Storage.getAttendance();
+  const existingIndex = att.findIndex(a => a.studentId===studentId && a.courseId===courseId && a.date===date);
+  if(existingIndex >= 0){
+    att[existingIndex].present = present;
+  } else {
+    Storage.saveAttendance({studentId, courseId, date, present});
+  }
+
+  renderAttendance();
+});
+
+populateSelects();
+renderAttendance();
+</script>
+</body>
+</html>

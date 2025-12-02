@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Upload Marks</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <div class="appbar">
+    <div class="brand"><div class="logo">UN</div><div><strong>Upload Marks</strong></div></div>
+    <div class="nav-actions"><div id="userBadge" class="small"></div><button class="btn" onclick="location.href='teacher_dashboard.html'">Dashboard</button></div>
+  </div>
+
+  <div class="card">
+    <h3>Upload Marks</h3>
+    <select id="courseSelect"></select>
+    <select id="studentSelect"></select>
+    <input type="number" id="marksInput" placeholder="Marks (0-100)" min="0" max="100">
+    <button id="saveMarksBtn">Save Marks</button>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script>
+const teacher = JSON.parse(sessionStorage.getItem('currentUser'));
+if(!teacher || teacher.role!=='teacher'){ alert('Teacher login required'); location.href='index.html'; }
+document.getElementById('userBadge').textContent = teacher.name + ' (' + teacher.role + ')';
+
+// populate selects
+const courseSel = document.getElementById('courseSelect');
+const studentSel = document.getElementById('studentSelect');
+function populateSelects(){
+  const courses = Storage.getCoursesByTeacher(teacher.id);
+  courseSel.innerHTML = courses.map(c=>`<option value="${c.id}">${c.code} - ${c.title}</option>`).join('');
+  const students = Storage.getStudents();
+  studentSel.innerHTML = students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+populateSelects();
+
+// save marks
+document.getElementById('saveMarksBtn').addEventListener('click', ()=>{
+  const studentId = studentSel.value;
+  const courseId = courseSel.value;
+  const marks = parseFloat(document.getElementById('marksInput').value) || 0;
+
+  let allMarks = Storage.getMarks();
+  const existing = allMarks.find(m=>m.studentId===studentId && m.courseId===courseId);
+  if(existing){
+    existing.total = marks;
+  } else {
+    allMarks.push({studentId, courseId, total: marks});
+  }
+  localStorage.setItem('uni_marks_v1', JSON.stringify(allMarks));
+  alert('Marks saved!');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Courses</title>
+<style>
+body{ font-family:'Times New Roman', Times, serif; background:#f4faff; margin:0; padding:0; }
+.container{ max-width:900px; margin:20px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.1);}
+h2{text-align:center; color:#0a1f44;}
+table{ width:100%; border-collapse:collapse; margin-top:20px;}
+th, td{ padding:10px; border:1px solid #ccc; text-align:left;}
+th{ background:#1a73e8; color:#fff;}
+button{ padding:8px 12px; margin:5px; background:#1a73e8; color:#fff; border:none; border-radius:5px; cursor:pointer;}
+button:hover{ background:#155ab6;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Your Courses</h2>
+<table>
+<thead><tr><th>ID</th><th>Code</th><th>Title</th></tr></thead>
+<tbody id="coursesTable"></tbody>
+</table>
+<button onclick="goBack()">Back to Dashboard</button>
+</div>
+
+<script src="js/storage.js"></script>
+<script>
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+if(!currentUser || currentUser.role!=='teacher'){ alert('Access denied'); window.location.href='index.html'; }
+
+function renderCourses(){
+  const courses = Storage.getCourses(); 
+  const tbody = document.getElementById('coursesTable');
+  tbody.innerHTML='';
+  courses.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${c.id}</td><td>${c.code}</td><td>${c.title}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function goBack(){ window.location.href='teacher_dashboard.html'; }
+
+renderCourses();
+</script>
+</body>
+</html>

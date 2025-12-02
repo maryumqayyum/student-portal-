@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Teacher Dashboard</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+body, html { height:100%; font-family:'Times New Roman', Times, serif; background: linear-gradient(135deg, #e8f2ff, #f4faff, #0a1f44, #1a73e8); background-size:400% 400%; animation: gradientBG 20s ease infinite; display:flex; justify-content:center; align-items:center; }
+@keyframes gradientBG { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
+@keyframes fadeIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+.container{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px; animation:fadeIn 1s ease forwards; }
+.header{ text-align:center; margin-bottom:30px; opacity:0; animation:fadeIn 1s ease 0.3s forwards; }
+.header img{ width:100px; margin-bottom:12px; border-radius:15px; box-shadow:0 10px 30px rgba(26,115,232,0.3); }
+.header h1{ font-size:2rem; color:#0a1f44; margin-bottom:4px; }
+.header h2{ font-size:1rem; color:#555; }
+.card{ background:rgba(255,255,255,0.95); width:360px; padding:30px 24px; border-radius:12px; box-shadow:0 8px 35px rgba(26,115,232,0.15); text-align:center; animation:fadeIn 1s ease 0.6s forwards; opacity:0; }
+.card h3{ font-size:1.5rem; margin-bottom:20px; color:#0a1f44; }
+.btn{ display:block; width:100%; padding:12px; margin:8px 0; border:none; border-radius:6px; font-size:1rem; cursor:pointer; background:#1a73e8; color:white; transition:all 0.3s ease; }
+.btn:hover{ background:#155ab6; transform:translateY(-2px) scale(1.02); box-shadow:0 6px 18px rgba(26,115,232,0.4); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <img src="fast_logo.png" alt="University Logo">
+    <h1>Teacher Dashboard</h1>
+    <h2 id="teacherName"></h2>
+  </div>
+  <div class="card">
+    <h3>Your Courses</h3>
+    <div id="coursesList"></div>
+    <hr>
+    <button class="btn" onclick="location.href='teacher_attendance.html'">Mark Attendance</button>
+    <button class="btn" onclick="location.href='teacher_marks.html'">Upload Marks</button>
+    <button class="btn" onclick="location.href='teacher_feedback.html'">View Feedback</button>
+     <button class="btn" onclick="location.href='index.html'">Logout</button>
+  </div>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script>
+Storage.seedIfNeeded();
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+if(!currentUser || currentUser.role!=='teacher'){
+    alert('Unauthorized! Redirecting to login.');
+    window.location.href='index.html';
+} else {
+    document.getElementById('teacherName').innerText = currentUser.name;
+    const courses = Storage.getCoursesByTeacher(currentUser.id);
+    const listDiv = document.getElementById('coursesList');
+    if(courses.length===0){
+        listDiv.innerHTML = "<p>No courses assigned.</p>";
+    } else {
+        listDiv.innerHTML = courses.map(c=>`<p>${c.code} - ${c.title}</p>`).join('');
+    }
+}
+</script>
+</body>
+</html>
